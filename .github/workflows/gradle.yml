@@ -1,0 +1,47 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+name: Gradle CI - Tests Unitaires avec JaCoCo
+
+on:
+  #push:
+    #branches:
+      #- main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Vérifie le code source
+        uses: actions/checkout@v3
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build et tests
+        run: ./gradlew clean test jacocoTestReport
+
+      - name: Sauvegarde le rapport JaCoCo XML
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: core/build/reports/jacoco/test/xml/*.xml
+
+      - name: Sauvegarde le rapport JaCoCo HTML
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report-html
+          path: core/build/reports/jacoco/test/html
